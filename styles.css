@@ -1,0 +1,243 @@
+/* Forged Earth & Ember — Otix.ai Brand Palette */
+:root {
+  --iron-ridge: #3A3F3E;
+  --rust-orange: #C8531D;
+  --rust-hover: #a8431a;
+  --dark-navy: #2A2E36;
+  --pine-green: #476E55;
+  --wood-grey: #4A3F36;
+  --haze-grey: #6B6B6B;
+  --light-warm: #F8F6F3;
+  --border-light: #E5E0DA;
+  --off-white: #E8E2D9;
+  --warm-white: #F5F0EA;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #fff;
+  color: var(--dark-navy);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header */
+.site-header {
+  padding: 2.5rem 2rem 0;
+  text-align: center;
+}
+
+.logo {
+  display: block;
+  width: 100px;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 3rem 2rem 2.5rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--rust-orange);
+  background: rgba(200, 83, 29, 0.07);
+  border: 1px solid rgba(200, 83, 29, 0.2);
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  margin-bottom: 1.75rem;
+}
+
+h1 {
+  font-size: clamp(3.5rem, 10vw, 6.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--dark-navy);
+  margin-bottom: 0.75rem;
+}
+
+h1 .dot {
+  color: var(--rust-orange);
+}
+
+.tagline {
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--haze-grey);
+  margin-bottom: 1.25rem;
+}
+
+.tagline strong {
+  font-weight: 600;
+  color: var(--dark-navy);
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--haze-grey);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Pillars */
+.pillars-section {
+  background: var(--light-warm);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  padding: 3rem 2rem;
+}
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.pillar {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 1.5rem 1.25rem;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pillar:hover {
+  border-color: rgba(200, 83, 29, 0.35);
+  box-shadow: 0 4px 16px rgba(42, 46, 54, 0.06);
+}
+
+.pillar-letter {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: var(--rust-orange);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  opacity: 0.25;
+}
+
+.pillar h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--dark-navy);
+  margin-bottom: 0.4rem;
+}
+
+.pillar p {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--haze-grey);
+}
+
+/* CTA */
+.cta {
+  text-align: center;
+  padding: 3rem 2rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.cta-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--haze-grey);
+  margin-bottom: 1.25rem;
+}
+
+.button {
+  display: inline-block;
+  background: var(--rust-orange);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.8rem 2.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(200, 83, 29, 0.25);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.button:hover {
+  background: var(--rust-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(200, 83, 29, 0.3);
+}
+
+.button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(200, 83, 29, 0.2);
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.8rem;
+  color: var(--haze-grey);
+}
+
+footer a {
+  color: var(--pine-green);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+footer a:hover {
+  color: var(--rust-orange);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .pillars {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero {
+    padding: 2.5rem 1.25rem 2rem;
+  }
+
+  .pillars-section {
+    padding: 2rem 1.25rem;
+  }
+
+  .pillars {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  .logo {
+    width: 80px;
+  }
+}
