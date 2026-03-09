@@ -154,6 +154,20 @@ h1 .dot {
   color: var(--haze-grey);
 }
 
+.aside {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--haze-grey);
+  margin-top: 1.5rem;
+  font-style: italic;
+  opacity: 0.6;
+}
+
+.aside strong {
+  font-style: normal;
+  color: var(--dark-navy);
+}
+
 /* CTA */
 .cta {
   text-align: center;
