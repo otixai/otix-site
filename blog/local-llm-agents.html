@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three Local AI Agents Walk Into a Legacy Codebase | Otix.ai</title>
+  <meta name="description" content="Building an adversarial refactoring loop with pi, Ollama, and zero API costs on an M4 MacBook Air.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .blog-post {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem;
+      line-height: 1.8;
+      color: var(--dark-navy);
+    }
+    .blog-post h1 {
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+    .blog-post .subtitle {
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--haze-grey);
+      margin-bottom: 2.5rem;
+    }
+    .blog-post h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 2.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--dark-navy);
+    }
+    .blog-post h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--dark-navy);
+    }
+    .blog-post p {
+      font-size: 1rem;
+      margin-bottom: 1.25rem;
+      color: var(--dark-navy);
+    }
+    .blog-post strong {
+      font-weight: 600;
+    }
+    .blog-post a {
+      color: var(--rust-orange);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .blog-post a:hover {
+      text-decoration: underline;
+    }
+    .blog-post code {
+      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace;
+      font-size: 0.88em;
+      background: var(--light-warm);
+      border: 1px solid var(--border-light);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+    }
+    .blog-post pre {
+      background: var(--dark-navy);
+      color: var(--off-white);
+      padding: 1.25rem 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .blog-post pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.85rem;
+      color: inherit;
+    }
+    .blog-post hr {
+      border: none;
+      border-top: 1px solid var(--border-light);
+      margin: 2.5rem 0;
+    }
+    .blog-post ul, .blog-post ol {
+      margin-bottom: 1.25rem;
+      padding-left: 1.5rem;
+    }
+    .blog-post li {
+      margin-bottom: 0.4rem;
+      font-size: 1rem;
+    }
+    .blog-back {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: var(--haze-grey);
+      text-decoration: none;
+      margin-bottom: 1rem;
+    }
+    .blog-back:hover {
+      color: var(--rust-orange);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html"><img src="../assets/logo.png" alt="Otix.ai" class="logo"></a>
+  </header>
+
+  <main>
+    <article class="blog-post">
+      <a href="../index.html" class="blog-back">&larr; Back</a>
+      <h1>Three Local AI Agents Walk Into a Legacy Codebase</h1>
+      <p class="subtitle">Building an adversarial refactoring loop with pi, Ollama, and zero API costs on an M4 MacBook Air.</p>
+
+      <hr>
+
+      <p>Most coding agent demos show one model talking to itself. Write code, run tests, fix code, ship it. That's fine for greenfield work. But legacy code is adversarial by nature — the original developer is fighting you from the grave, and your assumptions about what the code does are wrong until proven otherwise.</p>
+
+      <p>So we built a loop where four agents argue about the Gilded Rose refactoring kata. One writes tests to pin behavior. One verifies the test results. One refactors to make the failing tests pass. A reviewer checks the final result. All running locally on an M4 MacBook Air through Ollama, orchestrated by <a href="https://shittycodingagent.ai/">pi</a> — Mario Zechner's minimal terminal coding agent.</p>
+
+      <p>No API keys. No cloud. No token bills. Just a local model arguing with itself through the filesystem until the tests pass.</p>
+
+      <h2>Why Pi</h2>
+
+      <p>Pi doesn't have built-in sub-agents, plan mode, or any of the scaffolding that other coding agents bake in. That's the point. It gives the model four tools — <code>read</code>, <code>write</code>, <code>edit</code>, <code>bash</code> — and gets out of the way.</p>
+
+      <p>The sub-agent pattern in pi is just shell composition: <code>pi -p "your prompt"</code> spawns a headless instance that does its work and exits. Your orchestrator is a bash script. Your agent definitions are short markdown files. There's no framework to learn, no YAML to configure, no abstraction layer between you and what's actually happening.</p>
+
+      <p>Pi also supports Ollama natively as a provider, so pointing it at local models is a config file and nothing else.</p>
+
+      <h2>The Hardware</h2>
+
+      <p>M4 MacBook Air, top spec — 32GB unified memory. That's the constraint we're designing around. Ollama keeps the model loaded in memory between calls, so once it's warm there's no swap penalty between agent turns. The budget is roughly: any single model up to ~24GB, with headroom for the OS and KV cache.</p>
+
+      <h2>The Model</h2>
+
+      <p>One model for all four agents: <strong><code>qwen3-coder:30b</code> (19GB, MoE 30B/3.3B active)</strong>.</p>
+
+      <p>This is a Mixture-of-Experts model — 30 billion total parameters, but only 3.3 billion activate per token. A router network selects which "experts" fire on each pass, giving you broad code knowledge with fast inference. More importantly, this model was trained on 7.5 trillion tokens at a 70% code ratio with execution-driven reinforcement learning. It didn't just read code — it learned by running code and observing what happened. That RL training is exactly what you want for an agent loop that's edit-test-fix on repeat.</p>
+
+      <p>We tried GLM-4.7-Flash (dense 30B) first. It wrote excellent tests but couldn't close the implementation loop — it would analyze the failures, explain what needed to change, and then not actually change it. Dense models put all 30B parameters behind every token, which is great for deep reasoning but doesn't translate into "use the edit tool to fix line 27." The Qwen3 Coder's RL training on execution loops makes it meaningfully better at the agentic part — calling tools, reading output, calling tools again.</p>
+
+      <p>One model, loads once, stays hot. Zero swap overhead. The adversarial tension comes from the prompt constraints, not model diversity — each agent gets a fresh context window and a narrow mandate.</p>
+
+      <pre><code>ollama pull qwen3-coder:30b</code></pre>
+
+      <h3>What We'd Run With More RAM</h3>
+
+      <p>For the curious: <code>qwen3-coder-next</code> is the model we actually wanted. It's an 80B MoE with only 3B active parameters per token, trained on 800K executable tasks with environment interaction and RL. It performs roughly on par with Claude Sonnet 4.5 on SWE-Bench Pro — absurd for an open-weight model. But the Q4 quant is 52GB. If you're reading this on a 64GB Mac, pull it. You'll know immediately why we wanted it.</p>
+
+      <h2>Setting Up Pi with Ollama</h2>
+
+      <p>Install pi:</p>
+
+      <pre><code>npm install -g @mariozechner/pi-coding-agent</code></pre>
+
+      <p>Create <code>~/.pi/agent/models.json</code>:</p>
+
+      <pre><code>{
+  "providers": {
+    "ollama": {
+      "baseUrl": "http://localhost:11434/v1",
+      "api": "openai-completions",
+      "apiKey": "ollama",
+      "compat": {
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": false
+      },
+      "models": [
+        { "id": "qwen3-coder:30b", "name": "Qwen3 Coder 30B MoE", "reasoning": true }
+      ]
+    }
+  }
+}</code></pre>
+
+      <p>The <code>compat</code> block matters. Ollama doesn't support the <code>developer</code> message role or <code>reasoning_effort</code> parameter that pi uses for some cloud providers. This tells pi to fall back to standard <code>system</code> messages. Without it, you'll get silent failures.</p>
+
+      <p>Create <code>~/.pi/agent/settings.json</code>:</p>
+
+      <pre><code>{
+  "defaultProvider": "ollama",
+  "defaultModel": "qwen3-coder:30b"
+}</code></pre>
+
+      <p>Verify it works:</p>
+
+      <pre><code>pi -p "Say hello and list your available tools."</code></pre>
+
+      <p>If you see it call <code>bash</code> or <code>read</code> successfully, you're wired up.</p>
+
+      <h2>The Kata</h2>
+
+      <p>The Gilded Rose is a refactoring classic. You inherit a gnarly <code>updateQuality()</code> method full of nested conditionals. You can't touch the <code>Item</code> class. Your job is to refactor it into something sane and add support for "Conjured" items that degrade twice as fast.</p>
+
+      <p>It's a perfect adversarial target because the original code is deliberately opaque, the requirements have edge cases that are easy to miss, and you can verify correctness mechanically — the tests either pass or they don't.</p>
+
+      <pre><code>git clone https://github.com/emilybache/GildedRose-Refactoring-Kata.git
+cd GildedRose-Refactoring-Kata/js-jest
+npm install</code></pre>
+
+      <p>Any language works. We're using the JavaScript/Jest version here because there's no compile step, the test runner gives clean parseable output, and local models handle vanilla JS more reliably than TypeScript — one fewer abstraction layer for a 3.3B-active model to get wrong.</p>
+
+      <h2>The Agent Definitions</h2>
+
+      <p>This is where most of the engineering happened. Getting a local model to act as a coding agent instead of a helpful assistant requires very specific prompt construction. Every lesson here came from watching the loop fail live.</p>
+
+      <h3>Lesson 1: Say "use your tools" first</h3>
+
+      <p>Local models default to assistant mode. They'll write a perfect explanation of what needs to change, wrap it in a markdown code block, and never touch the filesystem. The first line of every agent prompt has to break this pattern: "You are a coding agent. Use your tools to read and write files directly. Do not explain code. Do not show examples. Edit files on disk."</p>
+
+      <h3>Lesson 2: Name the tools explicitly</h3>
+
+      <p>Pi gives the model <code>read</code>, <code>write</code>, <code>edit</code>, and <code>bash</code>. Mentioning these by name in the numbered steps primes the model to emit tool calls instead of prose. "Use read to open src/gilded_rose.js" is better than "Read the source file."</p>
+
+      <h3>Lesson 3: Read existing files before writing</h3>
+
+      <p>The js-jest kata uses CommonJS (<code>require</code>). If the model doesn't read the existing test file first, it'll write ES module syntax (<code>import { Item } from './Item'</code>) and Jest will crash before any test runs. The fix: step 1 of the test writer is always "read the existing test file and match its patterns."</p>
+
+      <h3>Lesson 4: Add a verifier agent</h3>
+
+      <p>Raw Jest output is noisy — stack traces, ANSI codes, timing info, file paths. Asking a 3.3B-active model to parse that noise AND figure out what to fix is two hard jobs in one prompt. A dedicated verifier agent runs the tests and produces a clean structured summary. The implementer gets "test X: expected 3, got 5" instead of a wall of terminal output.</p>
+
+      <p>Here are all four agent definitions. These go in <code>.pi/agents/</code> at the project root.</p>
+
+      <p><code>.pi/agents/test-writer.md</code>:</p>
+
+      <pre><code>You are a coding agent. Use your tools to read and write files directly.
+Do not explain code. Do not show examples. Edit files on disk.
+1. Use read to open test/gilded_rose.test.js. Note the require style.
+2. Use read to open src/gilded_rose.js. Understand every branch.
+3. Use write or edit to add tests to test/gilded_rose.test.js.
+   Match the existing require/import style exactly.
+4. Cover: normal items, Aged Brie, Sulfuras, Backstage passes.
+5. Cover edges: quality 0, quality 50, sellIn 0, negative sellIn.
+6. Add FAILING tests for "Conjured" items that degrade 2x as fast.
+7. Only modify files in test/. Never touch src/.
+8. Use bash to run `npm test`. Read the output to confirm tests run.</code></pre>
+
+      <p><code>.pi/agents/verifier.md</code>:</p>
+
+      <pre><code>You are a coding agent. Do not modify any files.
+1. Use bash to run `npm test`.
+2. Read the full output including any errors before the test summary.
+3. If tests crashed (syntax errors, import errors), report the exact error.
+4. If tests ran, report: X passed, Y failed, and each failure name.
+5. If all passed, say: ALL PASS</code></pre>
+
+      <p><code>.pi/agents/implementer.md</code>:</p>
+
+      <pre><code>You are a coding agent. Use your tools to read and edit files directly.
+Do not explain code. Do not show examples. Edit files on disk.
+1. Use read to open src/gilded_rose.js.
+2. Read the failing test summary below.
+3. Use edit to modify src/gilded_rose.js to fix each failure.
+4. Do NOT touch the Item class. Do NOT modify any test files.
+5. Use bash to run `npm test` after each edit.
+6. Read the output. If tests fail, edit again. Repeat until green.</code></pre>
+
+      <p><code>.pi/agents/reviewer.md</code>:</p>
+
+      <pre><code>You are a coding agent. Do not modify any files.
+1. Use read to open src/gilded_rose.js.
+2. Use read to open every file in test/.
+3. Use bash to run `npm test`. Confirm all tests pass.
+4. Check: all Gilded Rose requirements covered including Conjured.
+5. Check: Item class is unmodified.
+6. Check: code is readable and extensible.
+7. Report: PASS or FAIL with specific issues.</code></pre>
+
+      <p>These are tight by design. Local models have smaller effective context windows than cloud models, and every token of system prompt is a token not spent on reasoning. Say what the agent is, what tools to use, what files to touch, and how to verify. Nothing else.</p>
+
+      <h2>The Orchestrator</h2>
+
+      <p>This is the loop. A bash script that cycles through test writing, verification, implementation, and verification again, with up to three rounds before the reviewer passes judgment.</p>
+
+      <p><code>run-kata.sh</code>:</p>
+
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$(cd "$(dirname "$0")" &amp;&amp; pwd)"
+cd "$DIR"
+
+MODEL="qwen3-coder:30b"
+MAX_ROUNDS=3
+ROUND=1
+
+run_agent() {
+  local label="$1"
+  local prompt="$2"
+  local logfile="$3"
+  echo "$label"
+  pi -p "$prompt" --provider ollama --model "$MODEL" 2&gt;&amp;1 | tee "$logfile"
+}
+
+verify() {
+  local logfile="$1"
+  run_agent "&#x1f50d; Verifier..." "$(cat .pi/agents/verifier.md)" "$logfile"
+}
+
+echo "=== GILDED ROSE ADVERSARIAL KATA ==="
+echo "Model: $MODEL"
+echo ""
+
+while [ $ROUND -le $MAX_ROUNDS ]; do
+  echo "══════ ROUND $ROUND/$MAX_ROUNDS ══════"
+
+  # --- Test Writer ---
+  TW_PROMPT=$(cat .pi/agents/test-writer.md)
+  if [ $ROUND -gt 1 ]; then
+    TW_PROMPT="$TW_PROMPT
+
+Round $ROUND: tests already exist. Read current tests first.
+Only add tests for coverage gaps. Do not rewrite existing tests."
+  fi
+  run_agent "&#x1f9ea; Test Writer..." "$TW_PROMPT" "/tmp/kata-r${ROUND}-tests.log"
+
+  # --- Verify after test writing ---
+  verify "/tmp/kata-r${ROUND}-verify-tests.log"
+
+  # --- Implementer gets structured failure summary ---
+  VERIFY_OUTPUT=$(cat "/tmp/kata-r${ROUND}-verify-tests.log" | tail -30)
+
+  IMPL_PROMPT="$(cat .pi/agents/implementer.md)
+
+Current test results from verifier:
+\`\`\`
+$VERIFY_OUTPUT
+\`\`\`"
+  run_agent "&#x1f527; Implementer..." "$IMPL_PROMPT" "/tmp/kata-r${ROUND}-impl.log"
+
+  # --- Verify after implementation ---
+  verify "/tmp/kata-r${ROUND}-verify-impl.log"
+
+  # --- Check if we're green ---
+  RESULT=$(npm test 2&gt;&amp;1 || true)
+  if echo "$RESULT" | grep -q "Tests:.*passed" &amp;&amp; ! echo "$RESULT" | grep -q "failed"; then
+    echo "&#x2705; All tests passing after round $ROUND"
+    break
+  else
+    echo "$RESULT" | tail -5
+    echo "&#x274c; Still failing, continuing..."
+  fi
+
+  echo ""
+  ROUND=$((ROUND + 1))
+done
+
+# --- Reviewer ---
+echo ""
+run_agent "&#x1f4cb; Reviewer..." "$(cat .pi/agents/reviewer.md)" "/tmp/kata-review.log"
+
+echo ""
+echo "=== DONE. Logs in /tmp/kata-*.log ==="</code></pre>
+
+      <pre><code>chmod +x run-kata.sh</code></pre>
+
+      <p>Run it with <code>./run-kata.sh</code>. Sit back. Watch the agents fight.</p>
+
+      <h2>What's Actually Happening</h2>
+
+      <p>Round 1: The test writer uses <code>read</code> to open the existing test file, sees the <code>require()</code> pattern, then reads the source to understand every branch. It uses <code>write</code> or <code>edit</code> to add characterization tests that match the existing style — including Conjured item tests that will deliberately fail. It runs <code>npm test</code> to confirm the tests actually execute.</p>
+
+      <p>The verifier then runs the tests independently and produces a structured summary: 22 passed, 6 failed, here are the failure names and expected-vs-actual values. Clean signal, no noise.</p>
+
+      <p>The implementer gets that summary — not raw Jest output. It uses <code>read</code> to open the source, uses <code>edit</code> to make targeted changes, uses <code>bash</code> to run <code>npm test</code> after each edit. With 3.3B active parameters, it generates code fast. The RL training on execution loops means it naturally falls into an edit-test-fix cycle rather than writing a long explanation.</p>
+
+      <p>Round 2+: The test writer re-reads the current state, finds coverage gaps the implementer's refactoring might have exposed, and adds more tests. The verifier confirms what's passing and failing. The implementer gets the new summary and iterates.</p>
+
+      <p>Final: The reviewer reads everything cold — source, tests, test output. It's checking things the other agents can't objectively evaluate about their own work: Is the refactored code actually cleaner? Did the test writer miss any requirement branches? Is the Item class still untouched?</p>
+
+      <p>Each <code>pi -p</code> invocation is a separate session — no shared memory, no shared context. The only communication channel between agents is the filesystem and the verifier's summary. The test writer leaves tests on disk. The verifier reads them and produces structured output. The implementer reads that output and leaves modified source on disk. It's adversarial by construction because each agent only sees the artifacts the others left behind, not their reasoning.</p>
+
+      <h2>What We Learned the Hard Way</h2>
+
+      <p>We burned through several iterations before this worked reliably. These are the failures that shaped the final design:</p>
+
+      <p><strong>GLM-4.7-Flash writes great tests but can't close.</strong> Dense 30B models reason deeply but the reasoning doesn't translate into tool use. GLM would analyze a failing test, explain exactly what needed to change in the source, format it as a markdown code block... and never call <code>edit</code>. The Qwen3 Coder's RL training on execution loops makes it actually use the tools.</p>
+
+      <p><strong>Without the verifier, the implementer flounders.</strong> Raw Jest output is too noisy for a 3.3B-active model. It would read 80 lines of stack traces and either pick the wrong thing to fix or get overwhelmed and start explaining instead of editing. The verifier distills that down to actionable signal.</p>
+
+      <p><strong>"Read the existing file first" is the single most important instruction.</strong> Without it, the test writer invents its own import style (ES modules in a CommonJS project), Jest crashes before any test runs, and the orchestrator thinks everything passed because it found zero failures in the output. Matching the existing codebase patterns has to be step 1, not an afterthought.</p>
+
+      <p><strong>"Do not explain" has to be the first thing the model reads.</strong> Local models default to helpful assistant mode. If the prompt starts with the task description, the model starts explaining. If it starts with "You are a coding agent. Use your tools. Do not explain," the model starts tool-calling. Framing before content.</p>
+
+      <p><strong>Check for "passed" not for the absence of "failed."</strong> If Jest crashes on a syntax error, there are no test failures to detect — there are no test <em>results</em> at all. The orchestrator has to positively confirm that tests ran and passed, not just check that nothing failed.</p>
+
+      <h2>Tuning for Your Hardware</h2>
+
+      <p><strong>If you have 64GB unified memory:</strong> Pull <code>qwen3-coder-next</code> (52GB). Same RL training philosophy, but 80B total parameters and trained on 800K executable tasks. It's the best local coding agent model available.</p>
+
+      <p><strong>If you only have 16GB:</strong> Drop to <code>qwen2.5-coder:7b</code> (4.7GB). Dense 7B, handles the Gilded Rose fine. Token generation will be faster but reasoning on edge cases will be shallower.</p>
+
+      <p><strong>If you want multi-model diversity:</strong> Use <code>glm-4.7-flash</code> for the test writer (deep reasoning, thorough tests) and <code>qwen3-coder:30b</code> for the implementer and verifier (RL-trained tool use). Both are 19GB but they can't coexist in 32GB, so you'll eat a 5-10 second swap each handoff. Worth it for batch runs, not for live demos.</p>
+
+      <p><strong>If tool calling breaks:</strong> Reduce the prompt length. Local models degrade faster than frontier models as context fills up. If an agent stalls, check the log — it's probably writing prose instead of calling tools. The "Do not explain" framing helps but isn't bulletproof.</p>
+
+      <h2>The Full File Tree</h2>
+
+      <p>For reference, here's what the project looks like when it's set up:</p>
+
+      <pre><code>GildedRose-Refactoring-Kata/js-jest/
+├── .pi/
+│   └── agents/
+│       ├── test-writer.md
+│       ├── verifier.md
+│       ├── implementer.md
+│       └── reviewer.md
+├── src/
+│   └── gilded_rose.js
+├── test/
+│   └── gilded_rose.test.js
+├── run-kata.sh
+└── package.json</code></pre>
+
+      <p>Plus <code>~/.pi/agent/models.json</code> and <code>~/.pi/agent/settings.json</code> for the Ollama provider config.</p>
+
+      <h2>Why This Matters</h2>
+
+      <p>The adversarial loop is the important part, not the kata.</p>
+
+      <p>Most AI coding workflows are single-agent: one model context, one perspective, one prompt that tries to do everything. That works for straightforward tasks. But legacy code — the kind that actually pays the bills — benefits from decomposition. A test writer that can only touch test files. An implementer that can only touch source. A verifier that can only read. A reviewer that judges the whole thing cold.</p>
+
+      <p>You don't need different models to get adversarial behavior — you need different mandates. The constraints force genuine disagreement even when the same weights are behind every response. It's the same reason a red team exercise works even when the red team and blue team are from the same company.</p>
+
+      <p>You can build this loop for any refactoring task, any codebase, any language. Swap the agent prompts. Swap the model. Swap the test runner command. The orchestrator doesn't care.</p>
+
+      <p>And because it's all local, you can run it against proprietary code without sending a single line through someone else's servers. That's not a philosophical point — it's a compliance requirement for a lot of the codebases that actually need this kind of work.</p>
+
+      <h2>What We'd Do Differently Next Time</h2>
+
+      <p><strong>Add a git commit between rounds.</strong> Right now if the implementer makes a mess, you have to manually revert. Wrapping each round in <code>git add -A && git commit -m "round $ROUND"</code> gives you a clean rollback point.</p>
+
+      <p><strong>Pipe the reviewer's output back into the loop.</strong> The current script is linear — reviewer goes last and that's it. A more aggressive version would feed the reviewer's FAIL output back to the test writer as round N+1 input, creating a true closed loop.</p>
+
+      <p><strong>Try different models per role.</strong> The single-model setup here is optimized for reliability and zero swap overhead. Once you're comfortable with the loop, experiment with mixed model setups — a dense model for test writing, an MoE for implementation, a different family for review. The orchestrator makes this a one-line change per agent.</p>
+
+      <p><strong>Scale the context window.</strong> If you're applying this to a larger codebase, consider setting <code>num_ctx</code> higher in a custom Ollama Modelfile. Qwen3 Coder supports 256K natively, but Ollama defaults conservatively. More context means the agents can see more of the codebase per turn.</p>
+
+      <hr>
+
+      <p><em>This post is part of our ongoing work at <a href="https://otix.ai">Otix</a> on practical AI workflows — the kind that run on hardware you own, against code you can't send to the cloud. No hype. No magic. Just agents arguing until the tests pass.</em></p>
+    </article>
+  </main>
+
+  <footer>
+    <p>An <a href="https://otix.ai">Otix.ai</a> initiative &middot; Built in Des Moines</p>
+  </footer>
+
+</body>
+</html>

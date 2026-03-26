@@ -216,6 +216,21 @@ footer {
   color: var(--haze-grey);
 }
 
+.blog-link {
+  margin-bottom: 1rem;
+}
+
+.blog-link a {
+  color: var(--rust-orange);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.blog-link a:hover {
+  text-decoration: underline;
+}
+
 footer a {
   color: var(--pine-green);
   text-decoration: none;
