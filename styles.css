@@ -34,45 +34,102 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Header */
+/* Header / masthead */
 .site-header {
-  padding: 2.5rem 2rem 0;
-  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-light);
 }
 
-.logo {
-  display: block;
-  width: 100px;
-  height: auto;
+.masthead {
+  /* matches the 680px blog content column so the wordmark lines up
+     with the text below it */
+  max-width: 680px;
   margin: 0 auto;
+  padding: 0 2rem;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brand-mark {
+  display: block;
+  width: 30px;
+  height: 30px;
+}
+
+.brand-name {
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: var(--dark-navy);
 }
 
 .site-nav {
-  margin-top: 1.25rem;
   display: flex;
-  justify-content: center;
-  gap: 1.75rem;
+  gap: 2rem;
 }
 
 .site-nav a {
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  position: relative;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
   color: var(--haze-grey);
   text-decoration: none;
-  padding-bottom: 0.2rem;
-  border-bottom: 1px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
+  padding: 4px 0;
+  transition: color 0.18s;
 }
 
 .site-nav a:hover {
-  color: var(--rust-orange);
+  color: var(--dark-navy);
+}
+
+/* Rust underline: slides in on hover, pinned open on the active page */
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 2px;
+  background: var(--rust-orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.22s ease;
+}
+
+.site-nav a:hover::after {
+  transform: scaleX(1);
 }
 
 .site-nav a[aria-current="page"] {
   color: var(--dark-navy);
-  font-weight: 600;
-  border-bottom-color: var(--rust-orange);
+}
+
+.site-nav a[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav a::after {
+    transition: none;
+  }
 }
 
 /* Hero */
@@ -276,6 +333,22 @@ footer a:hover {
   }
 }
 
+@media (max-width: 560px) {
+  .masthead {
+    padding: 0 1.25rem;
+    height: 56px;
+  }
+
+  .site-nav {
+    gap: 1.1rem;
+  }
+
+  .site-nav a {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+  }
+}
+
 @media (max-width: 380px) {
   .hero {
     padding: 2.5rem 1.25rem 2rem;
@@ -292,9 +365,5 @@ footer a:hover {
 
   h1 {
     font-size: 3rem;
-  }
-
-  .logo {
-    width: 80px;
   }
 }

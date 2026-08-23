@@ -5,21 +5,119 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Three Local AI Agents Walk Into a Legacy Codebase | Otix.ai</title>
   <meta name="description" content="Building an adversarial refactoring loop with pi, Ollama, and zero API costs on an M4 MacBook Air.">
+  <link rel="canonical" href="https://otix.ai/blog/local-llm-agents.html">
+
+  <meta property="og:site_name" content="Otix.ai">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://otix.ai/blog/local-llm-agents.html">
+  <meta property="og:title" content="Three Local AI Agents Walk Into a Legacy Codebase">
+  <meta property="og:description" content="Building an adversarial refactoring loop with pi, Ollama, and zero API costs on an M4 MacBook Air.">
+  <meta property="og:image" content="https://otix.ai/assets/logo.png">
+  <meta property="article:published_time" content="2026-03-26">
+  <meta property="article:publisher" content="https://otix.ai/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Three Local AI Agents Walk Into a Legacy Codebase">
+  <meta name="twitter:description" content="Building an adversarial refactoring loop with pi, Ollama, and zero API costs on an M4 MacBook Air.">
+  <meta name="twitter:image" content="https://otix.ai/assets/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="../blog.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "@id": "https://otix.ai/blog/local-llm-agents.html#article",
+        "headline": "Three Local AI Agents Walk Into a Legacy Codebase",
+        "name": "Three Local AI Agents Walk Into a Legacy Codebase",
+        "description": "Building an adversarial refactoring loop with pi, Ollama, and zero API costs on an M4 MacBook Air.",
+        "url": "https://otix.ai/blog/local-llm-agents.html",
+        "datePublished": "2026-03-26",
+        "dateModified": "2026-03-26",
+        "author": {
+          "@type": "Organization",
+          "name": "Otix.ai",
+          "url": "https://otix.ai/"
+        },
+        "publisher": {
+          "@id": "https://otix.ai/#organization"
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://otix.ai/blog/local-llm-agents.html"
+        },
+        "image": "https://otix.ai/assets/logo.png",
+        "isPartOf": {
+          "@id": "https://otix.ai/blog/#blog"
+        },
+        "articleSection": "Local Models",
+        "keywords": "local LLM, Ollama, coding agents, Qwen3 Coder, refactoring, Gilded Rose kata, multi-agent",
+        "inLanguage": "en-US"
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://otix.ai/#organization",
+        "name": "Otix.ai",
+        "url": "https://otix.ai/",
+        "email": "erik@otix.ai",
+        "description": "Otix.ai works on practical AI-assisted software delivery — spec-driven workflows, coding agents, and the DONE framework.",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://otix.ai/assets/logo.png",
+          "width": 1024,
+          "height": 1024
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Des Moines",
+          "addressRegion": "IA",
+          "addressCountry": "US"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://otix.ai/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": "https://otix.ai/blog/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Three Local AI Agents Walk Into a Legacy Codebase",
+            "item": "https://otix.ai/blog/local-llm-agents.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
   <header class="site-header">
-    <a href="../index.html"><img src="../assets/logo.png" alt="Otix.ai" class="logo"></a>
-    <nav class="site-nav">
-      <a href="../index.html">DONE</a>
-      <a href="index.html" aria-current="page">Blog</a>
-      <a href="mailto:erik@otix.ai">Contact</a>
-    </nav>
+    <div class="masthead">
+      <a class="brand" href="../index.html">
+        <img src="../assets/logo.png" alt="" class="brand-mark">
+        <span class="brand-name">Otix.ai</span>
+      </a>
+      <nav class="site-nav">
+        <a href="../index.html">DONE</a>
+        <a href="index.html" aria-current="page">Blog</a>
+        <a href="mailto:erik@otix.ai">Contact</a>
+      </nav>
+    </div>
   </header>
 
   <main>

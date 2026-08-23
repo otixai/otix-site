@@ -1,0 +1,18 @@
+# Otix.ai
+
+> Otix.ai publishes practical, field-tested writing on AI-assisted software delivery — spec-driven agent workflows, local coding agents, and the DONE delivery framework. Based in Des Moines, Iowa.
+
+Everything here is long-form and written from real client and lab work rather than product marketing. Posts document what was actually run, what broke, and what the tradeoffs were.
+
+## Blog
+
+- [Beyond Vibe Coding: A Step-by-Step First Project with Hypervelocity Engineering](https://otix.ai/blog/beyond-vibe-coding-hve.html): A walkthrough of Microsoft's HVE Core and the RPI workflow (Research → Plan → Implement → Review), building a dock appointment scheduler in .NET 8. Covers the `copilot-instructions.md` onboarding file, why context is cleared between phases, and why the durable asset is the spec rather than the generated code.
+- [Three Local AI Agents Walk Into a Legacy Codebase](https://otix.ai/blog/local-llm-agents.html): Building an adversarial multi-agent refactoring loop with the `pi` coding agent and Ollama, running entirely locally on a 32GB M4 MacBook Air with no API costs. Covers model selection (Qwen3 Coder 30B MoE), agent prompt design, and why separate mandates produce adversarial behavior from a single model.
+
+## Frameworks
+
+- [DONE](https://otix.ai/): A delivery framework positioned as a practical alternative to SAFe — Deliver, Own, Navigate, Evolve. Outcomes over ceremonies. Manifesto forthcoming.
+
+## Contact
+
+- Email: erik@otix.ai
