@@ -9,117 +9,30 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
-  <style>
-    .blog-post {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 2rem 2rem 4rem;
-      line-height: 1.8;
-      color: var(--dark-navy);
-    }
-    .blog-post h1 {
-      font-size: clamp(1.75rem, 5vw, 2.5rem);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      line-height: 1.2;
-      margin-bottom: 0.5rem;
-    }
-    .blog-post .subtitle {
-      font-size: 1.05rem;
-      font-style: italic;
-      color: var(--haze-grey);
-      margin-bottom: 2.5rem;
-    }
-    .blog-post h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-top: 2.5rem;
-      margin-bottom: 0.75rem;
-      color: var(--dark-navy);
-    }
-    .blog-post h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-top: 2rem;
-      margin-bottom: 0.5rem;
-      color: var(--dark-navy);
-    }
-    .blog-post p {
-      font-size: 1rem;
-      margin-bottom: 1.25rem;
-      color: var(--dark-navy);
-    }
-    .blog-post strong {
-      font-weight: 600;
-    }
-    .blog-post a {
-      color: var(--rust-orange);
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .blog-post a:hover {
-      text-decoration: underline;
-    }
-    .blog-post code {
-      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace;
-      font-size: 0.88em;
-      background: var(--light-warm);
-      border: 1px solid var(--border-light);
-      padding: 0.15em 0.4em;
-      border-radius: 4px;
-    }
-    .blog-post pre {
-      background: var(--dark-navy);
-      color: var(--off-white);
-      padding: 1.25rem 1.5rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin-bottom: 1.5rem;
-      line-height: 1.5;
-    }
-    .blog-post pre code {
-      background: none;
-      border: none;
-      padding: 0;
-      font-size: 0.85rem;
-      color: inherit;
-    }
-    .blog-post hr {
-      border: none;
-      border-top: 1px solid var(--border-light);
-      margin: 2.5rem 0;
-    }
-    .blog-post ul, .blog-post ol {
-      margin-bottom: 1.25rem;
-      padding-left: 1.5rem;
-    }
-    .blog-post li {
-      margin-bottom: 0.4rem;
-      font-size: 1rem;
-    }
-    .blog-back {
-      display: inline-block;
-      font-size: 0.85rem;
-      color: var(--haze-grey);
-      text-decoration: none;
-      margin-bottom: 1rem;
-    }
-    .blog-back:hover {
-      color: var(--rust-orange);
-    }
-  </style>
+  <link rel="stylesheet" href="../blog.css">
 </head>
 <body>
 
   <header class="site-header">
     <a href="../index.html"><img src="../assets/logo.png" alt="Otix.ai" class="logo"></a>
+    <nav class="site-nav">
+      <a href="../index.html">DONE</a>
+      <a href="index.html" aria-current="page">Blog</a>
+      <a href="mailto:erik@otix.ai">Contact</a>
+    </nav>
   </header>
 
   <main>
     <article class="blog-post">
-      <a href="../index.html" class="blog-back">&larr; Back</a>
+      <a href="index.html" class="blog-back">&larr; All posts</a>
       <h1>Beyond Vibe Coding: A Step-by-Step First Project with Hypervelocity Engineering</h1>
       <p class="subtitle">How we used Microsoft's HVE Core and the RPI workflow to build a dock appointment scheduler &mdash; and why the constraint is the whole point.</p>
+
+      <div class="post-tags">
+        <span class="tag">AI Workflows</span>
+        <span class="tag">Spec-Driven</span>
+        <span class="tag">Methodology</span>
+      </div>
 
       <hr>
 
