@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beyond Vibe Coding: A Step-by-Step First Project with Hypervelocity Engineering | Otix.ai</title>
+  <meta name="description" content="How we used Microsoft's HVE Core and the RPI workflow to build a dock appointment scheduler — and why the constraint is the whole point.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../blog.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html"><img src="../assets/logo.png" alt="Otix.ai" class="logo"></a>
+    <nav class="site-nav">
+      <a href="../index.html">DONE</a>
+      <a href="index.html" aria-current="page">Blog</a>
+      <a href="mailto:erik@otix.ai">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <article class="blog-post">
+      <a href="index.html" class="blog-back">&larr; All posts</a>
+      <h1>Beyond Vibe Coding: A Step-by-Step First Project with Hypervelocity Engineering</h1>
+      <p class="subtitle">How we used Microsoft's HVE Core and the RPI workflow to build a dock appointment scheduler &mdash; and why the constraint is the whole point.</p>
+
+      <div class="post-tags">
+        <span class="tag">AI Workflows</span>
+        <span class="tag">Spec-Driven</span>
+        <span class="tag">Methodology</span>
+      </div>
+
+      <hr>
+
+      <p>If you've spent any time with AI coding assistants, you know the pattern. You ask Copilot to "add a booking endpoint," and it produces something that compiles, looks plausible, and quietly violates three conventions your team has held for years. The code isn't wrong, exactly. It's just not yours. Results vary by who's prompting, reviews get harder, and "it worked in my chat" becomes the new "it worked on my machine."</p>
+
+      <p>Microsoft's answer to this is <strong>Hypervelocity Engineering (HVE)</strong> &mdash; a methodology and open-source tooling framework (<code>hve-core</code>) that came out of their ISE team, the group that's been shipping AI solutions for enterprise clients at a pace that forced them to figure out what actually works. At Trility, we'd been running equivalent patterns on client engagements for over a year before Microsoft gave the approach a name, so when <code>hve-core</code> landed publicly, we were curious how our field-tested habits mapped onto their formalization.</p>
+
+      <p>The answer: closely. And the core idea is worth internalizing even if you never install the tooling.</p>
+
+      <h2>The one-sentence version of HVE</h2>
+
+      <p>Don't ask AI to write code. Ask it to research first, plan second, implement third, and review last &mdash; and make each phase produce an artifact the next phase consumes.</p>
+
+      <p>That's the <strong>RPI workflow</strong> (Research &rarr; Plan &rarr; Implement &rarr; Review), and the insight behind it is captured in a line from the HVE docs that we quote in nearly every conversation about this: when AI knows it <em>cannot</em> implement, it stops optimizing for "plausible code" and starts optimizing for "verified truth."</p>
+
+      <p>An AI agent that's allowed to write code will always drift toward writing code &mdash; investigation and implementation blur together. Constrain the agent to research-only, and suddenly it reads your codebase like an auditor instead of guessing like an intern with a deadline.</p>
+
+      <h2>What we're building</h2>
+
+      <p>To walk through the workflow, we need a project with enough real complexity that research actually matters. A to-do app won't cut it &mdash; there's nothing to discover. So we picked something from our own backyard: a <strong>Dock Appointment Scheduler</strong>.</p>
+
+      <p>If you've worked anywhere near logistics, you know the problem. A distribution center has a fixed number of dock doors. Carriers need to book time slots for pickups and deliveries. The scheduling rules are where it gets interesting:</p>
+
+      <ul>
+        <li><strong>No double-booking</strong> &mdash; one appointment per door per time slot</li>
+        <li><strong>Turn buffers</strong> &mdash; 30 minutes between appointments on the same door for trailer swap</li>
+        <li><strong>Carrier windows</strong> &mdash; some carriers can only book within contracted hours</li>
+        <li><strong>Load-type constraints</strong> &mdash; refrigerated loads can only use doors with reefer hookups</li>
+        <li><strong>Cancellation rules</strong> &mdash; appointments can be cancelled up to 2 hours before the slot</li>
+      </ul>
+
+      <p>The stack: .NET 8 Web API, EF Core with SQL Server, and a minimal Razor Pages front end for the scheduling grid. Medium complexity, familiar tools, and &mdash; critically &mdash; enough business rules that an AI agent freestyle-coding it would absolutely get something wrong.</p>
+
+      <h2>Step 0: Install HVE Core</h2>
+
+      <p>The fastest path is the VS Code extension. Search the marketplace for <strong>HVE Core</strong> (publisher: <code>ise-hve-essentials</code>) and install it. That's genuinely it &mdash; the extension packages all the agents, prompts, and instruction sets, and they become available in Copilot Chat immediately. No configuration required.</p>
+
+      <p>If you live in the terminal, there's also a Copilot CLI plugin path:</p>
+
+      <pre><code>copilot plugin marketplace add microsoft/hve-core
+copilot plugin install hve-core@hve-core</code></pre>
+
+      <p>Two things to know before you start:</p>
+
+      <ol>
+        <li>HVE agents create their working artifacts in a <code>.copilot-tracking/</code> folder in your project. This is where research findings, plans, and phase state live. These artifacts are the connective tissue of the whole workflow &mdash; don't gitignore them reflexively; on our teams, we commit them alongside the code they produced.</li>
+        <li>The <code>/clear</code> command is not optional hygiene &mdash; it's part of the methodology. You reset Copilot's context between phases. The artifacts carry the verified context forward; the chat history doesn't need to. More on why below.</li>
+      </ol>
+
+      <h2>Step 0.5: Onboard your AI like a new hire</h2>
+
+      <p>Before you run a single RPI phase, do what Michael Brown (a Microsoft veteran who presented on HVE at Dallas Software Developers) frames as <em>onboarding</em>: treat the AI like an eager junior developer joining your team. High velocity, genuine enthusiasm, zero domain context, and no sense of where the boundaries are &mdash; until you supply them.</p>
+
+      <p>For a human junior dev, you'd hand over coding standards, point at a well-built example feature, and explain the domain. Do exactly that for the AI, in a <code>copilot-instructions.md</code> file at the root of your repo:</p>
+
+      <ul>
+        <li><strong>Coding standards and conventions</strong> &mdash; the ones your team actually enforces, not aspirational ones</li>
+        <li><strong>An example vertical slice</strong> &mdash; point at your cleanest existing feature ("appointments should follow the pattern in <code>src/DockScheduler/Facilities/</code>") so the AI has a house-style reference</li>
+        <li><strong>Explicitly disallowed patterns and libraries</strong> &mdash; "do not add caching layers, do not introduce MediatR, do not use <code>DateTime.Now</code>" is worth more than a page of positive guidance</li>
+        <li><strong>Domain context</strong> &mdash; a paragraph on what the business actually does</li>
+      </ul>
+
+      <p>That last one matters more than it looks. Brown's example: the same feature request means very different architecture for an e-commerce platform than for a physical farm-supply operation. In our world, "book an appointment" means something very specific when the resource is a dock door with a reefer hookup and the customer is a carrier with contracted hours. Two sentences of domain context in the instructions file prevent an entire category of wrong architectural assumptions.</p>
+
+      <p>And treat these files as what they are: version-controlled code assets. They get reviewed in PRs, they evolve as the team learns, and they're arguably the highest-leverage code in the repository &mdash; every generated line downstream inherits their quality.</p>
+
+      <h2>Step 1: Research (<code>/rpi-research</code>)</h2>
+
+      <p>Open Copilot Chat (<code>Ctrl+Alt+I</code>), type <code>/rpi-research</code>, and describe what you need <em>investigated</em> &mdash; not what you want built. The framing matters. Here's roughly what we used:</p>
+
+      <pre><code>Research what's needed to add appointment booking to this solution.
+
+Consider:
+* Existing entity and DbContext patterns in src/DockScheduler.Data
+* How validation is currently handled (FluentValidation? data annotations?)
+* Existing API conventions: routing, response envelopes, ProblemDetails usage
+* How time zones are handled — appointments are local to the facility
+* Concurrency: what happens when two carriers book the same slot simultaneously?
+* Existing test patterns in tests/ (xUnit? fixtures? test data builders?)</code></pre>
+
+      <p>Notice what's in that prompt: questions, not requirements. The research agent's job is to read the codebase and come back with verified findings &mdash; which patterns exist, which conventions are in force, where the landmines are.</p>
+
+      <p>For our scheduler, the research phase surfaced things we would have hand-waved past:</p>
+
+      <ul>
+        <li>The existing <code>DbContext</code> used a rowversion-based optimistic concurrency pattern on other entities &mdash; so the double-booking rule shouldn't be a "check then insert" (race condition), it should lean on a unique constraint plus concurrency token.</li>
+        <li>Time handling in the codebase was inconsistent (some <code>DateTime</code>, some <code>DateTimeOffset</code>) &mdash; the research flagged this as a decision the plan needed to make explicitly, not inherit accidentally.</li>
+        <li>The API used <code>ProblemDetails</code> for errors everywhere except one legacy controller &mdash; so new endpoints should follow the majority pattern.</li>
+      </ul>
+
+      <p>This is the payoff. None of that is exotic, but every one of those is exactly the kind of thing a freestyle AI session gets wrong &mdash; and gets wrong invisibly, in code that compiles and demos fine.</p>
+
+      <p>The findings land as a durable artifact in <code>.copilot-tracking/</code>. Read it. Correct it if it's wrong. This is your first human gate.</p>
+
+      <h2>Step 2: Plan (<code>/rpi-plan</code>)</h2>
+
+      <p>Now type <code>/clear</code> to reset the context, then <code>/rpi-plan</code>. Feed it the requirements informed by the research findings:</p>
+
+      <pre><code>Create an implementation plan for appointment booking.
+
+Requirements from research:
+* New Appointment entity following existing entity conventions, with
+  rowversion concurrency token
+* Unique index on (DockDoorId, SlotStart) to enforce no double-booking
+  at the database level
+* All times stored as DateTimeOffset; facility time zone applied at the
+  API boundary
+* Booking rules as a domain service: 30-min turn buffer, carrier window
+  check, reefer-door compatibility
+* Endpoints follow existing routing + ProblemDetails conventions
+* xUnit tests using the existing test data builder pattern</code></pre>
+
+      <p>Why the <code>/clear</code> between phases? Context pollution is real. A long chat session accumulates half-formed ideas, abandoned directions, and the model's own earlier speculation &mdash; and all of it influences what comes next. RPI's answer is that phases hand off through artifacts, not chat history. The plan phase starts fresh, reads the research findings, and produces a plan. Clean inputs, clean outputs.</p>
+
+      <p>The plan that comes back is a structured, step-by-step specification: which files to create, what goes in each, and validation criteria for knowing when each step is done. For our scheduler it broke into six steps &mdash; entity + migration, unique index, domain service with the booking rules, endpoints, validation, tests.</p>
+
+      <p>This is your second human gate, and it's the important one. Reviewing a plan is dramatically cheaper than reviewing generated code. A wrong assumption caught here costs you a sentence edit. The same assumption caught in a PR costs you a rewrite. Spend your senior-engineer attention here.</p>
+
+      <h2>Step 3: Implement (<code>/rpi-implement</code>)</h2>
+
+      <p><code>/clear</code> again, then <code>/rpi-implement</code>, and hand it the approved plan. The implement agent works through the plan step by step, showing you each file change for approval as it goes.</p>
+
+      <p>What surprised people on our teams the first time: this phase is <em>boring</em>. That's the compliment. There's no watching the AI improvise architecture in real time, no "wait, why is it adding a Redis dependency?" moment. The creativity happened in research and planning, where it was cheap to redirect. Implementation is just execution against a spec &mdash; the agent even self-corrects against the plan's validation criteria as it completes each step.</p>
+
+      <p>For the scheduler, implementation produced the migration with the unique index, the <code>BookingService</code> with all five business rules, endpoints that matched the house <code>ProblemDetails</code> style, and tests using the existing builder pattern &mdash; because all of those decisions were already made, in writing, before a line of code existed.</p>
+
+      <p>Run your build and tests. <code>dotnet build</code>, <code>dotnet test</code>. Then hit the concurrency case manually or with a quick integration test: two simultaneous bookings for the same door and slot, one succeeds, one gets a clean 409. It does, because the research phase found the pattern and the plan committed to it.</p>
+
+      <h2>Step 4: Review (<code>/rpi-review</code>)</h2>
+
+      <p>The newest formalized phase, and the one teams skip at their peril. <code>/clear</code>, then <code>/rpi-review</code>. The review agent validates the implementation against the research findings and the plan &mdash; not against vibes. Did every plan step get completed? Do the artifacts and the code agree? Did implementation drift from a convention that research documented?</p>
+
+      <p>Think of it as a diff between "what we said we'd build" and "what got built," performed by an agent that has both documents. It caught one drift in ours: the implement phase had quietly used <code>DateTime.UtcNow</code> in a cancellation-window check instead of the injected clock abstraction the plan specified. Small, testable, exactly the kind of thing human reviewers gloss over at 4:45 on a Friday.</p>
+
+      <h2>The shortcut, once you've earned it</h2>
+
+      <p>Running the four phases manually with <code>/clear</code> between them is the right way to learn RPI &mdash; you see each phase's responsibility and artifact. For day-to-day work, HVE Core ships a coordinated <strong>RPI Agent</strong>: select it from the agent picker (or invoke <code>/rpi</code>) and describe the task once. It orchestrates the same phase skills, including Review, without the manual switching.</p>
+
+      <p>Same constraint system, same artifacts, less ceremony. But run the manual loop at least once. You'll trust the coordinated agent more when you know exactly what it's doing on your behalf.</p>
+
+      <h2>What this actually changes</h2>
+
+      <p>A few honest observations from doing this on real work, not just demos:</p>
+
+      <p><strong>The code becomes disposable; the specs become the asset.</strong> Brown's framing is that AI-generated code is a sketch &mdash; if a plan yields poor code, don't patch the code, fix the plan and regenerate. That inverts what you protect. When implementation is cheap and reproducible from an approved plan, the durable assets are the research findings, the plan, and the instructions file &mdash; not the generated lines. That's why we commit <code>.copilot-tracking/</code> artifacts: they're the source; the code is increasingly the build output.</p>
+
+      <p><strong>The artifacts outlive the task.</strong> The research findings for our scheduler are now the best onboarding document that codebase has for its booking domain. Nobody set out to write documentation; it fell out of the workflow.</p>
+
+      <p><strong>Your role shifts from author to reviewer</strong> &mdash; at the two points where review is cheap. Reading a research summary and approving a plan takes minutes. It's the highest-leverage minutes in the whole cycle. That shift is bigger than one workflow, and Brown says the quiet part out loud: pure line-by-line coding capacity is depreciating. What appreciates is exactly what RPI asks of you &mdash; domain expertise, architectural judgment, and the ability to specify precisely.</p>
+
+      <p><strong>It's slower for trivial tasks, and that's fine.</strong> Nobody needs RPI to rename a variable. The methodology pays for itself when there are genuine unknowns &mdash; existing patterns to discover, conventions to honor, integration seams to respect. Our rule of thumb: if you'd assign the task to a new team member with a written brief, it's an RPI task.</p>
+
+      <p><strong>Fair warning:</strong> Microsoft is explicit that <code>hve-core</code> is a highly opinionated, rapidly evolving framework &mdash; patterns to learn from, not a stable platform to build a production dependency on. Treat it that way. The tooling will change; the discipline underneath it won't.</p>
+
+      <h2>Try it yourself</h2>
+
+      <p>Pick something with real rules &mdash; your domain has one, we promise. Install the extension, write the instructions file, run <code>/rpi-research</code> on your own codebase with genuine questions, and read what comes back before you let anything write code.</p>
+
+      <p>And keep Microsoft's own rule for AI-assisted delivery taped to your monitor: <strong>AI code is still your code.</strong> If you can't explain it, understand it, maintain it, and support it, don't ship it. Everything in this post &mdash; the onboarding, the phases, the artifacts, the gates &mdash; exists to make that standard achievable at speed.</p>
+
+      <p>The velocity in Hypervelocity Engineering doesn't come from the AI typing fast. It comes from never having to throw away plausible-but-wrong code again.</p>
+
+      <hr>
+
+      <p><em>Trility has been running spec-driven, multi-agent delivery patterns on client engagements since before they had a name. If you're in the Omaha area, catch Jason Rall and Ryan Skarin at Omaha DUG presenting "Beyond Vibe Coding: Hypervelocity Engineering and the Path to AI-Native Delivery" &mdash; interactive discussion, live demo, and patterns you can apply Monday morning.</em></p>
+
+      <h3>Resources</h3>
+
+      <ul>
+        <li>HVE Core repository: <a href="https://github.com/microsoft/hve-core">github.com/microsoft/hve-core</a></li>
+        <li>Getting started guide: <a href="https://microsoft.github.io/hve-core">microsoft.github.io/hve-core</a></li>
+        <li>HVE Accelerators Hub on Microsoft Learn: <a href="https://learn.microsoft.com/en-us/industry/playbook">learn.microsoft.com/en-us/industry/playbook</a></li>
+      </ul>
+    </article>
+  </main>
+
+  <footer>
+    <p>An <a href="https://otix.ai">Otix.ai</a> initiative &middot; Built in Des Moines</p>
+  </footer>
+
+</body>
+</html>
