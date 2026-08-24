@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Beyond Vibe Coding: A Step-by-Step First Project with Hypervelocity Engineering | Otix.ai</title>
   <meta name="description" content="How we used Microsoft's HVE Core and the RPI workflow to build a dock appointment scheduler — and why the constraint is the whole point.">
+  <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://otix.ai/blog/beyond-vibe-coding-hve.html">
 
   <meta property="og:site_name" content="Otix.ai">
@@ -136,7 +137,7 @@
 
       <p>If you've spent any time with AI coding assistants, you know the pattern. You ask Copilot to "add a booking endpoint," and it produces something that compiles, looks plausible, and quietly violates three conventions your team has held for years. The code isn't wrong, exactly. It's just not yours. Results vary by who's prompting, reviews get harder, and "it worked in my chat" becomes the new "it worked on my machine."</p>
 
-      <p>Microsoft's answer to this is <strong>Hypervelocity Engineering (HVE)</strong> &mdash; a methodology and open-source tooling framework (<code>hve-core</code>) that came out of their ISE team, the group that's been shipping AI solutions for enterprise clients at a pace that forced them to figure out what actually works. At Trility, we'd been running equivalent patterns on client engagements for over a year before Microsoft gave the approach a name, so when <code>hve-core</code> landed publicly, we were curious how our field-tested habits mapped onto their formalization.</p>
+      <p>Microsoft's answer to this is <strong>Hypervelocity Engineering (HVE)</strong> &mdash; a methodology and open-source tooling framework (<code>hve-core</code>) that came out of their ISE team, the group that's been shipping AI solutions for enterprise clients at a pace that forced them to figure out what actually works. These patterns aren't new &mdash; versions of them have been running on real client work for a while under other names. When <code>hve-core</code> landed publicly, the interesting question was how well those field-tested habits mapped onto Microsoft's formalization.</p>
 
       <p>The answer: closely. And the core idea is worth internalizing even if you never install the tooling.</p>
 
@@ -176,7 +177,7 @@ copilot plugin install hve-core@hve-core</code></pre>
       <p>Two things to know before you start:</p>
 
       <ol>
-        <li>HVE agents create their working artifacts in a <code>.copilot-tracking/</code> folder in your project. This is where research findings, plans, and phase state live. These artifacts are the connective tissue of the whole workflow &mdash; don't gitignore them reflexively; on our teams, we commit them alongside the code they produced.</li>
+        <li>HVE agents create their working artifacts in a <code>.copilot-tracking/</code> folder in your project. This is where research findings, plans, and phase state live. These artifacts are the connective tissue of the whole workflow &mdash; don't gitignore them reflexively &mdash; committing them alongside the code they produced is the better default.</li>
         <li>The <code>/clear</code> command is not optional hygiene &mdash; it's part of the methodology. You reset Copilot's context between phases. The artifacts carry the verified context forward; the chat history doesn't need to. More on why below.</li>
       </ol>
 
@@ -253,7 +254,7 @@ Requirements from research:
 
       <p><code>/clear</code> again, then <code>/rpi-implement</code>, and hand it the approved plan. The implement agent works through the plan step by step, showing you each file change for approval as it goes.</p>
 
-      <p>What surprised people on our teams the first time: this phase is <em>boring</em>. That's the compliment. There's no watching the AI improvise architecture in real time, no "wait, why is it adding a Redis dependency?" moment. The creativity happened in research and planning, where it was cheap to redirect. Implementation is just execution against a spec &mdash; the agent even self-corrects against the plan's validation criteria as it completes each step.</p>
+      <p>What surprises people the first time: this phase is <em>boring</em>. That's the compliment. There's no watching the AI improvise architecture in real time, no "wait, why is it adding a Redis dependency?" moment. The creativity happened in research and planning, where it was cheap to redirect. Implementation is just execution against a spec &mdash; the agent even self-corrects against the plan's validation criteria as it completes each step.</p>
 
       <p>For the scheduler, implementation produced the migration with the unique index, the <code>BookingService</code> with all five business rules, endpoints that matched the house <code>ProblemDetails</code> style, and tests using the existing builder pattern &mdash; because all of those decisions were already made, in writing, before a line of code existed.</p>
 
@@ -295,7 +296,7 @@ Requirements from research:
 
       <hr>
 
-      <p><em>Trility has been running spec-driven, multi-agent delivery patterns on client engagements since before they had a name. If you're in the Omaha area, catch Jason Rall and Ryan Skarin at Omaha DUG presenting "Beyond Vibe Coding: Hypervelocity Engineering and the Path to AI-Native Delivery" &mdash; interactive discussion, live demo, and patterns you can apply Monday morning.</em></p>
+      <p><em>These are working notes &mdash; written mostly to think the workflow through properly and to have something to come back to. If the methodology holds up across the next few projects, that will be worth a follow-up.</em></p>
 
       <h3>Resources</h3>
 
