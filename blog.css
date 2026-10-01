@@ -88,6 +88,32 @@
   margin-bottom: 0.4rem;
   font-size: 1rem;
 }
+.blog-post table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.92rem;
+}
+.blog-post caption {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.blog-post th, .blog-post td {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-light);
+}
+.blog-post th {
+  font-weight: 600;
+}
+.blog-post thead {
+  background: var(--light-warm);
+}
+.blog-post p code {
+  overflow-wrap: anywhere;
+}
 .blog-back {
   display: inline-block;
   font-size: 0.85rem;
