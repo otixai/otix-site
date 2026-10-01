@@ -349,7 +349,21 @@ await page.evaluate(
 
       <p>I still need human playtesters. The bot gets engine state and help avoiding terrain. People get a screen and their reflexes. Bot runs can flag trouble spots, but they can't tell me whether the game is any damn fun.</p>
 
-      <p>Next time it hits a wall, I want the logs to tell me whether to fix the level or the pilot.</p>
+      <h2>What Changed in the Game</h2>
+
+      <p>I've also been changing the game. These are in the development build; the short bot run hasn't settled the balance.</p>
+
+      <h3>Introduce Enemies Before Mixing Them</h3>
+
+      <p>The opening starts with fans, adds darts at 12 seconds, gunners at 18, and spinners at 22. Each gets a brief turn in the spawn pool before joining the mix. Existing enemies stay on screen.</p>
+
+      <p>Scroll speed holds steady, with more terrain variety after a minute. Give the player a chance to read the new threat before piling on.</p>
+
+      <h3>Make Progression Match the Pressure</h3>
+
+      <p>Meter costs now rise with upgrade levels gained, rather than every meter advance. Waiting for a later slot doesn't raise the price by itself. The cost grows as the ship gets stronger.</p>
+
+      <p>That's the balance I'm working on: enemies ramp up while the player builds enough firepower to handle them. Next I'll test whether those curves keep pace. I'd rather tune that than turn the difficulty down and call it fixed.</p>
 
       <hr>
 
