@@ -6,6 +6,8 @@ Everything here is long-form and written from real client and lab work rather th
 
 ## Blog
 
+- [Teaching an AI to Play My Game, and Learning How to Test the AI](https://otix.ai/blog/ai-playtesting-meterline.html): Building a local AI playtesting harness for METERLINE with the Kev model adapter, fresh-state movement checks, and transparent reporting of scripted fallbacks. Covers a short guarded smoke test and plans for comparing difficulty and progression across fixed seeds. No model training has been implemented.
+
 - [Three Local AI Agents Walk Into a Legacy Codebase](https://otix.ai/blog/local-llm-agents.html): Building an adversarial multi-agent refactoring loop with the `pi` coding agent and Ollama, running entirely locally on a 32GB M4 MacBook Air with no API costs. Covers model selection (Qwen3 Coder 30B MoE), agent prompt design, and why separate mandates produce adversarial behavior from a single model.
 
 ## Frameworks

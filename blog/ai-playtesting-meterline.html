@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teaching an AI to Play My Game, and Learning How to Test the AI | Otix.ai</title>
+  <meta name="description" content="Building a local AI playtester for METERLINE, diagnosing a collision regression, and learning what a short guarded run can actually tell me.">
+  <link rel="canonical" href="https://otix.ai/blog/ai-playtesting-meterline.html">
+
+  <meta property="og:site_name" content="Otix.ai">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://otix.ai/blog/ai-playtesting-meterline.html">
+  <meta property="og:title" content="Teaching an AI to Play My Game, and Learning How to Test the AI">
+  <meta property="og:description" content="Building a local AI playtester for METERLINE, diagnosing a collision regression, and learning what a short guarded run can actually tell me.">
+  <meta property="og:image" content="https://otix.ai/assets/logo.png">
+  <meta property="article:published_time" content="2026-09-30">
+  <meta property="article:publisher" content="https://otix.ai/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Teaching an AI to Play My Game, and Learning How to Test the AI">
+  <meta name="twitter:description" content="Building a local AI playtester for METERLINE, diagnosing a collision regression, and learning what a short guarded run can actually tell me.">
+  <meta name="twitter:image" content="https://otix.ai/assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../blog.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "@id": "https://otix.ai/blog/ai-playtesting-meterline.html#article",
+        "headline": "Teaching an AI to Play My Game, and Learning How to Test the AI",
+        "name": "Teaching an AI to Play My Game, and Learning How to Test the AI",
+        "description": "Building a local AI playtester for METERLINE, diagnosing a collision regression, and learning what a short guarded run can actually tell me.",
+        "url": "https://otix.ai/blog/ai-playtesting-meterline.html",
+        "datePublished": "2026-09-30",
+        "dateModified": "2026-09-30",
+        "author": {
+          "@type": "Organization",
+          "name": "Otix.ai",
+          "url": "https://otix.ai/"
+        },
+        "publisher": {
+          "@id": "https://otix.ai/#organization"
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://otix.ai/blog/ai-playtesting-meterline.html"
+        },
+        "image": "https://otix.ai/assets/logo.png",
+        "isPartOf": {
+          "@id": "https://otix.ai/blog/#blog"
+        },
+        "articleSection": "AI Playtesting",
+        "keywords": "METERLINE, AI playtesting, local models, Kev, game balance, agent evaluation",
+        "inLanguage": "en-US"
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://otix.ai/#organization",
+        "name": "Otix.ai",
+        "url": "https://otix.ai/",
+        "email": "jason@otix.ai",
+        "description": "Otix.ai works on practical AI-assisted software delivery — spec-driven workflows, coding agents, and the DONE framework.",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://otix.ai/assets/logo.png",
+          "width": 1024,
+          "height": 1024
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Des Moines",
+          "addressRegion": "IA",
+          "addressCountry": "US"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://otix.ai/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": "https://otix.ai/blog/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Teaching an AI to Play My Game, and Learning How to Test the AI",
+            "item": "https://otix.ai/blog/ai-playtesting-meterline.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="masthead">
+      <a class="brand" href="../index.html">
+        <img src="../assets/logo.png" alt="" class="brand-mark">
+        <span class="brand-name">Otix.ai</span>
+      </a>
+      <nav class="site-nav">
+        <a href="../index.html">DONE</a>
+        <a href="index.html" aria-current="page">Blog</a>
+        <a href="mailto:jason@otix.ai">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <article class="blog-post">
+      <a href="index.html" class="blog-back">&larr; All posts</a>
+      <h1>Teaching an AI to Play My Game, and Learning How to Test the AI</h1>
+      <p class="subtitle">I gave a local AI the controls to my shooter. It found the wall just fine.</p>
+
+      <div class="post-tags">
+        <span class="tag">Local Models</span>
+        <span class="tag">AI Playtesting</span>
+        <span class="tag">Agent Evaluation</span>
+      </div>
+
+      <hr>
+
+      <p>I'm building METERLINE, a scrolling shooter. I want to know whether the player gets enough firepower to keep up with the difficulty.</p>
+
+      <p>Testing that means replaying the opening after every change. Dying doesn't tell me whether the enemies were too tough, the upgrades were too scarce, or I just played like an idiot.</p>
+
+      <p>So I built a local AI playtesting harness to put in some laps and log the results. Then I changed the prompt to get the pilot moving more. It started driving into the bottom barrier. Repeatedly.</p>
+
+      <p>Well, hell. Now I've got two things to debug.</p>
+
+      <h2>Handing Over the Controls</h2>
+
+      <p>The harness runs the Phaser game in Chromium, reads structured engine state, and passes movement and purchase decisions back through the game's controls. The model doesn't read screenshots.</p>
+
+      <p>A scripted pilot gives me a baseline. A Kev adapter connects the local model, with cautious, aggressive, and collector styles to vary its priorities.</p>
+
+      <p>I set a starting seed and a time budget. Reports capture damage locations, decisions, inference latency, and every time the harness intervenes or falls back to scripted control.</p>
+
+      <h3>Putting It to Work</h3>
+
+      <p>Two processes do the work: a Python model server and a Node runner that controls the game.</p>
+
+      <p>With Kev and its serving dependencies installed in a Python environment, the model-server command is:</p>
+
+      <pre><code>python -m kev.serve \
+  --run jaredpalmer/kev-0.8b \
+  --port 8009</code></pre>
+
+      <p>This loads the checkpoint and serves requests on port 8009. The first launch downloads the weights into the local Hugging Face cache. Leave it running while the game runner uses it.</p>
+
+      <p>The runner checks that Kev is available, starts Vite, and launches an isolated Chromium session through Playwright. Here's the setup, with logging and some browser settings omitted:</p>
+
+      <pre><code>import { createServer } from 'vite';
+import { chromium } from 'playwright';
+
+// Inside the runner, after parsing arguments and checking Kev:
+server = await createServer({
+  server: { host: '127.0.0.1', port: 0, hmr: false },
+  clearScreen: false
+});
+await server.listen();
+const url = server.resolvedUrls.local[0];
+
+browser = await chromium.launch({
+  headless: !values.headed,
+  args: [
+    '--disable-background-timer-throttling',
+    '--disable-renderer-backgrounding'
+  ]
+});
+const context = await browser.newContext({
+  viewport: { width: 960, height: 540 },
+  serviceWorkers: 'block'
+});
+const page = await context.newPage();
+await page.goto(`${url}?harness=1`);
+await page.waitForFunction(
+  () =&gt; window.__ML_TEST?.ready(),
+  undefined,
+  { timeout: 30000 }
+);</code></pre>
+
+      <p>Port <code>0</code> lets Vite use an available port. The model server stays on 8009. In development, <code>?harness=1</code> enables the custom <code>window.__ML_TEST</code> hooks: <code>start()</code> begins an attempt, <code>observe()</code> reads state, and <code>act()</code> applies controls.</p>
+
+      <p>The runner observes, asks Kev for a decision, checks fresh state, applies the action, and logs it. It saves an HTML report, JSON results, and a decision trace, then shuts down the game server and browser.</p>
+
+      <p>For a short test, I use Kev on level 1 with the cautious style, seed 12345, and a visible browser. A 60-second budget limits elapsed test time. If an attempt ends early, the runner starts another with the next seed.</p>
+
+      <h2>The Game Doesn't Wait for Inference</h2>
+
+      <p>The game doesn't give a damn that the model is still thinking. Enemies move and terrain scrolls. A clear path can disappear before the answer comes back.</p>
+
+      <p>The barrier collisions made me check both the movement's duration and the age of the observation behind it. A valid response can still be a bad move.</p>
+
+      <h2>Keeping It Out of the Ditch</h2>
+
+      <p>I trimmed the observations to relative positions, nearby threats, pickups, equipment, and recent decisions. Then I added terrain and boundary checks for the one second each movement command lasts.</p>
+
+      <p>The model chooses from the remaining actions. After inference, the harness checks the choice against fresh state. I record blocked movements and scripted fallbacks. If I have to keep grabbing the wheel, that belongs in the report.</p>
+
+      <h3>Check the Whole Second</h3>
+
+      <p>This function filters the movement choices. <code>directions</code> maps the nine movement names to their descriptions.</p>
+
+      <pre><code>export function movementCandidates(world) {
+  const axes = {
+    stay: [0, 0], up: [0, -1], down: [0, 1],
+    left: [-1, 0], right: [1, 0],
+    upLeft: [-Math.SQRT1_2, -Math.SQRT1_2],
+    upRight: [Math.SQRT1_2, -Math.SQRT1_2],
+    downLeft: [-Math.SQRT1_2, Math.SQRT1_2],
+    downRight: [Math.SQRT1_2, Math.SQRT1_2]
+  };
+  const safe = Object.entries(directions).filter(([id]) =&gt; {
+    const [dx, dy] = axes[id];
+    for (let step = 1; step &lt;= 10; step++) {
+      const t = step / 10;
+      const x = world.ship.x + dx * world.ship.speed * t;
+      const y = world.ship.y + dy * world.ship.speed * t;
+      if (
+        x &lt; world.bounds.minX || x &gt; world.bounds.maxX ||
+        y &lt; world.bounds.minY || y &gt; world.bounds.maxY
+      ) return false;
+      if (world.terrain.some(r =&gt; {
+        const left = r.x - world.scrollSpeed * t;
+        const nx = Math.max(left, Math.min(x, left + r.w));
+        const ny = Math.max(r.y, Math.min(y, r.y + r.h));
+        return Math.hypot(x - nx, y - ny) &lt; world.ship.radius + 4;
+      })) return false;
+    }
+    return true;
+  });
+  return Object.fromEntries(
+    safe.length ? safe : [['stay', directions.stay]]
+  );
+}</code></pre>
+
+      <p>The check samples ten positions over one second, accounting for terrain scrolling toward the ship. It rejects paths that cross the bounds or pass within four pixels of a terrain collision.</p>
+
+      <p>It assumes constant scroll speed and known terrain. It doesn't dodge enemies and can miss collisions between samples. If every direction fails, it offers <code>stay</code>, which may still be unsafe.</p>
+
+      <h3>Check Again Before Applying It</h3>
+
+      <p>After inference, the runner checks again. End-of-run, upgrade-menu, and fallback handling are omitted here:</p>
+
+      <pre><code>const fresh = await page.evaluate(
+  () =&gt; window.__ML_TEST.observe()
+);
+
+// End-of-run, upgrade-menu, and fallback handling omitted.
+
+if (
+  values.controller === 'kev' &amp;&amp;
+  fresh.cards.length === 0 &amp;&amp;
+  !Object.hasOwn(
+    movementCandidates(fresh.observation.world),
+    decision.action.direction
+  )
+) {
+  decision = {
+    ...decision,
+    requestedDirection: decision.action.direction,
+    action: { ...decision.action, direction: 'stay' }
+  };
+  current.safetyInterventions++;
+}
+
+await page.evaluate(
+  d =&gt; window.__ML_TEST.act(d.action, d.pick),
+  decision
+);</code></pre>
+
+      <p>A blocked move becomes <code>stay</code>. The trace preserves the requested direction, and the report counts the intervention so I can distinguish the model's choice from the harness's correction.</p>
+
+      <h2>Twenty-Eight Seconds Without a Dent</h2>
+
+      <p>Here is one short run with those checks turned on:</p>
+
+      <table>
+        <caption>Short Run With Movement Checks Enabled</caption>
+        <thead>
+          <tr><th scope="col">Measurement</th><th scope="col">Observed Result</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Level time reached</th><td>About 28 seconds</td></tr>
+          <tr><th scope="row">Kills</th><td>4</td></tr>
+          <tr><th scope="row">Damage events</th><td>0</td></tr>
+          <tr><th scope="row">Decisions</th><td>25</td></tr>
+          <tr><th scope="row">Scripted fallback decisions</th><td>2</td></tr>
+          <tr><th scope="row">Unsafe stale movements blocked</th><td>2</td></tr>
+          <tr><th scope="row">Median inference latency</th><td>About 1.07 seconds</td></tr>
+        </tbody>
+      </table>
+
+      <p>Four kills and no damage. I'll take it, but 28 seconds doesn't establish level completion, better play than the baseline, or better game balance.</p>
+
+      <p>The two scripted fallbacks and two blocked movements matter just as much. This is a result for the model with assistance.</p>
+
+      <h2>What I Need From the Logs</h2>
+
+      <p>To tune the game, I need the logs to answer a few questions:</p>
+
+      <ul>
+        <li><strong>Difficulty:</strong> Where do attempts end, relative to how many reached each section? A late encounter with fewer deaths may simply have fewer arrivals.</li>
+        <li><strong>Progression:</strong> How long until the first purchase, and how long between later purchases?</li>
+        <li><strong>Readiness:</strong> What equipment and defenses remain at key checkpoints?</li>
+        <li><strong>Enemy pressure:</strong> Which enemies and attacks cause damage, and how long do those enemies survive?</li>
+        <li><strong>Reward access:</strong> Are pickups scarce, hard to reach, or being ignored by the controller?</li>
+        <li><strong>Controller quality:</strong> Are latency, fallbacks, or safety interventions distorting the result?</li>
+      </ul>
+
+      <p>Some of that is logged already. Exact purchase events, bullet-source attribution, and more encounter detail still need wiring up.</p>
+
+      <h2>Change One Thing, Run It Again</h2>
+
+      <p>Next I'll freeze the controller, run the opening minute across several fixed seeds, change one spawn or reward parameter, and run those seeds again.</p>
+
+      <p>I'll compare damage, progress, and harness interventions, adding purchase timing and checkpoint equipment when those events are logged. Changing the pilot and level together would make the results harder to explain.</p>
+
+      <p>Even with the same seed, inference timing varies. Repeated runs should help show how much variation comes from the controller.</p>
+
+      <h2>Nobody Is Training a Model Here Yet</h2>
+
+      <p>I'm evaluating a pretrained model, adjusting its observations, prompts, and controls. I haven't implemented training. Giving it 15 minutes means 15 minutes of testing; it doesn't learn from those runs.</p>
+
+      <p>Demonstrations or fine-tuning may come later, once I can measure whether they help.</p>
+
+      <p>I still need human playtesters. The bot gets engine state and help avoiding terrain. People get a screen and their reflexes. Bot runs can flag trouble spots, but they can't tell me whether the game is any damn fun.</p>
+
+      <p>Next time it hits a wall, I want the logs to tell me whether to fix the level or the pilot.</p>
+
+      <hr>
+
+      <p><em>Ongoing experiments with local models at Otix.ai.</em></p>
+
+      <h3>Resources</h3>
+
+      <ul>
+        <li><a href="local-llm-agents.html">Three Local AI Agents Walk Into a Legacy Codebase</a>: another experiment in running local models and checking what they actually do.</li>
+      </ul>
+    </article>
+  </main>
+
+  <footer>
+    <p>An <a href="https://otix.ai">Otix.ai</a> initiative &middot; Built in Des Moines</p>
+  </footer>
+
+</body>
+</html>
