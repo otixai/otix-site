@@ -231,3 +231,21 @@
   padding-right: 1.25rem;
   }
 }
+
+/* Gameplay recordings stay paused until the reader starts them. */
+.gameplay-clip {
+  margin: 2rem 0;
+}
+.gameplay-clip video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: var(--dark-navy);
+}
+.gameplay-clip figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--haze-grey);
+}
